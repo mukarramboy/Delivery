@@ -1,12 +1,14 @@
 from fastapi import APIRouter, status
-from schemas import SignUpModel
-from database.config import session
+from schemas.user_schema import SignUpModel, LoginModel
+from database.config import session, engine
 from database.models import User
 from fastapi.exceptions import HTTPException
 
 router = APIRouter(
     prefix="/auth",
 )
+
+session = session(bind=engine)
 
 @router.post("/signup")
 async def signup(user: SignUpModel):
@@ -26,11 +28,25 @@ async def signup(user: SignUpModel):
         is_active=user.is_active
     )
     session.add(new_user)
+    session.commit()
+    session.refresh(new_user)
+
+    return {"id": new_user.id, "username": new_user.username, "email": new_user.email}
 
 
 @router.post("/login")
-async def login():
-    return {"message": "Login successful"}
+async def login(user: LoginModel):
+    db_username_or_email = session.query(User).filter(User.email == user.username_or_email or User.username == user.username_or_email).first()
+    if not db_username_or_email:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No user is of username or email")
+    
+    if db_username_or_email.password == user.password:
+        return {"message": "Login successful", "data":{
+            "refresh_token":"Token 1234",
+            "access_token": "Access Token 1234"
+
+        }}
+    return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Conflict password')
 
 @router.get("/me")
 async def get_me():

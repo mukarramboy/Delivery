@@ -1,4 +1,4 @@
-from config import Base
+from .config import Base
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils.types import ChoiceType

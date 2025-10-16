@@ -3,7 +3,7 @@ from typing import Optional
 
 
 class SignUpModel(BaseModel):
-    id: Optional[int]
+    id: Optional[int] = None
     username: str
     email: str
     password: str
@@ -12,7 +12,7 @@ class SignUpModel(BaseModel):
 
     class Config:
         orm_mode = True
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "username": "johndoe",
                 "email": "johndoe@example.com",
@@ -22,3 +22,16 @@ class SignUpModel(BaseModel):
             }
         }
         
+
+class LoginModel(BaseModel):
+    username_or_email: str
+    password: str
+
+    class Config:
+        orm_mode = True
+        json_schema_extra ={
+            "example":{
+                "username_or_email": "johndoe",
+                "password":"securepassword",
+            }
+        }
