@@ -3,6 +3,8 @@ from schemas.user_schema import SignUpModel, LoginModel
 from database.config import session, engine
 from database.models import User
 from fastapi.exceptions import HTTPException
+from sqlalchemy import or_
+from werkzeug.security import generate_password_hash, check_password_hash
 
 router = APIRouter(
     prefix="/auth",
@@ -10,7 +12,7 @@ router = APIRouter(
 
 session = session(bind=engine)
 
-@router.post("/signup")
+@router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def signup(user: SignUpModel):
     db_email = session.query(User).filter(User.email == user.email).first()
     if db_email:
@@ -23,7 +25,7 @@ async def signup(user: SignUpModel):
     new_user = User(
         username=user.username,
         email=user.email,
-        password=user.password,
+        password=generate_password_hash(user.password),
         is_staff=user.is_staff,
         is_active=user.is_active
     )
@@ -36,7 +38,7 @@ async def signup(user: SignUpModel):
 
 @router.post("/login")
 async def login(user: LoginModel):
-    db_username_or_email = session.query(User).filter(User.email == user.username_or_email or User.username == user.username_or_email).first()
+    db_username_or_email = session.query(User).filter(or_(User.email == user.username_or_email, User.username == user.username_or_email)).first()
     if not db_username_or_email:
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No user is of username or email")
     
