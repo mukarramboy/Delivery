@@ -1,10 +1,13 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
 from schemas.user_schema import SignUpModel, LoginModel
 from database.config import session, engine
 from database.models import User
 from fastapi.exceptions import HTTPException
 from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
+from fastapi_jwt_auth import AuthJWT
+
+
 
 router = APIRouter(
     prefix="/auth",
@@ -36,19 +39,19 @@ async def signup(user: SignUpModel):
     return {"id": new_user.id, "username": new_user.username, "email": new_user.email}
 
 
-@router.post("/login")
-async def login(user: LoginModel):
-    db_username_or_email = session.query(User).filter(or_(User.email == user.username_or_email, User.username == user.username_or_email)).first()
-    if not db_username_or_email:
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No user is of username or email")
+@router.post("/login", status_code=status.HTTP_200_OK)
+async def login(user: LoginModel, Authorize: AuthJWT = Depends()):
+    db_user = session.query(User).filter(or_(User.email == user.username_or_email, User.username == user.username_or_email)).first()
     
-    if db_username_or_email.password == user.password:
+    if db_user and check_password_hash(db_user.password, user.password):
+        access_token = Authorize.create_access_token(subject=db_user.id)
+        refresh_token = Authorize.create_refresh_token(subject=db_user.id)
         return {"message": "Login successful", "data":{
-            "refresh_token":"Token 1234",
-            "access_token": "Access Token 1234"
+            "refresh_token": refresh_token,
+            "access_token": access_token
 
-        }}
-    return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Conflict password')
+        }}      
+    
 
 @router.get("/me")
 async def get_me():
