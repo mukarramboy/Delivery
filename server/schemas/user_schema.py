@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-
+from datetime import timedelta
 
 class SignUpModel(BaseModel):
     id: Optional[int] = None
@@ -10,9 +10,10 @@ class SignUpModel(BaseModel):
     is_staff: Optional[bool] = False
     is_active: Optional[bool] = True
 
-    class Config:
-        orm_mode = True
-        json_schema_extra = {
+    
+    model_config = {
+        "from_attributes": True,  # заменяет orm_mode = True
+        "json_schema_extra": {
             "example": {
                 "username": "johndoe",
                 "email": "johndoe@example.com",
@@ -21,21 +22,25 @@ class SignUpModel(BaseModel):
                 "is_active": True
             }
         }
+    }
         
 
 class Settings(BaseModel):
-    authjwt_secret_key: str = "ac6c14f448a52ec5316ce95b84460342e4f038a48e3248b32f35ac14459fd4db"
+    authjwt_secret_key : str = "5ffc4280efac0a3b89f3e014d1b3e373eba3bc15b5ea22bc3c6fff60b6de9d89"
+    authjwt_access_token_expires : timedelta = timedelta(hours=1)
+    authjwt_refresh_token_expires : timedelta = timedelta(days=3)
 
 
 class LoginModel(BaseModel):
     username_or_email: str
     password: str
 
-    class Config:
-        orm_mode = True
-        json_schema_extra ={
-            "example":{
+    model_config = {
+        "from_attributes": True,   # заменяет orm_mode=True
+        "json_schema_extra": {
+            "example": {
                 "username_or_email": "johndoe",
-                "password":"securepassword",
+                "password": "securepassword",
             }
         }
+    }
