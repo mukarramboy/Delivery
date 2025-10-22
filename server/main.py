@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api.routers import aunteficate
+from api.routers import aunteficate, order
 from schemas.user_schema import Settings
 from fastapi_jwt_auth2 import AuthJWT
 
@@ -44,6 +44,7 @@ app.openapi = custom_openapi
 
 
 app.include_router(aunteficate.router)
+app.include_router(order.router)
 
 
 @app.get("/")

@@ -81,7 +81,7 @@ async def refresh(Authorize: AuthJWT = Depends()):
 @router.get("/profile", status_code=status.HTTP_200_OK)
 async def profile(Authorize: AuthJWT = Depends()):
     try:
-        Authorize.jwt_access_token_required()
+        Authorize.jwt_required()
         current_user = Authorize.get_jwt_subject()
         db_user = session.query(User).filter(User.username == current_user).first()
         if not db_user:

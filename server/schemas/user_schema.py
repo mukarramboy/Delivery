@@ -27,8 +27,6 @@ class SignUpModel(BaseModel):
 
 class Settings(BaseModel):
     authjwt_secret_key : str = "5ffc4280efac0a3b89f3e014d1b3e373eba3bc15b5ea22bc3c6fff60b6de9d89"
-    authjwt_access_token_expires : timedelta = timedelta(hours=1)
-    authjwt_refresh_token_expires : timedelta = timedelta(days=3)
 
 
 class LoginModel(BaseModel):
