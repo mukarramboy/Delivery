@@ -36,7 +36,15 @@ async def signup(user: SignUpModel):
     session.commit()
     session.refresh(new_user)
 
-    return {"id": new_user.id, "username": new_user.username, "email": new_user.email}
+    data = {
+        "success": True,
+        "message": "User created successfully",
+        "user_id": new_user.id,
+        "username": new_user.username,
+        "email": new_user.email
+    }
+
+    return jsonable_encoder(data)
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)
