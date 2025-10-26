@@ -29,7 +29,9 @@ async def create_order(order: OrderModel, Authorize: AuthJWT = Depends()):
         quantity=order.quantity,
         status=order.status,
         user_id=db_user.id,
+        product_id=order.product_id
     )
+
     new_order.user = db_user
 
     session.add(new_order)

@@ -7,6 +7,7 @@ class OrderModel(BaseModel):
     quantity: int
     status: Optional[str] = "PENDING"
     user_id: Optional[int] = None
+    product_id: int
 
 
     model_config = {
