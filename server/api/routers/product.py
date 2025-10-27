@@ -4,7 +4,7 @@ from fastapi_jwt_auth2 import AuthJWT
 
 from database.config import session, engine
 from database.models import Product, User
-from schemas.product_schema import ProductModel
+from schemas.product_schema import ProductModel, ProductUpdateModel
 
 
 
@@ -108,7 +108,7 @@ async def delete_product(product_id: int, Authorize: AuthJWT = Depends()):
 
 
 @router.put("/{product_id}", status_code=status.HTTP_200_OK)
-async def update_product(product_id: int, product: ProductModel, Authorize: AuthJWT = Depends()):
+async def update_product(product_id: int, product: ProductUpdateModel, Authorize: AuthJWT = Depends()):
     try:
         Authorize.jwt_required()
     except Exception as e:
@@ -119,7 +119,7 @@ async def update_product(product_id: int, product: ProductModel, Authorize: Auth
     if not db_user.is_staff:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
     
-    db_product = session.query(Product).filter(Product.id == product_id).first()
+    db_product = session.query(Product).filter(Product.id == product.id).first()
     if not db_product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     
@@ -138,7 +138,6 @@ async def update_product(product_id: int, product: ProductModel, Authorize: Auth
             "name": db_product.name,
             "description": db_product.description,
             "price": db_product.price,
-            "in_stock": db_product.in_stock
         }
     }
 
